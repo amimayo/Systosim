@@ -5,6 +5,7 @@ module matmul_tb;
     reg clk, reset;
     reg [31:0] a, b;
     wire [511:0] result;
+    integer i;
 
     systolic_array uut(
         .clk(clk),
@@ -90,11 +91,11 @@ module matmul_tb;
 
         $display("========================");
         $display("Result : ");
-        $display("%0d %0d %0d %0d", result[511:480], result[479:448], result[447:416], result[415:384]);
-        $display("%0d %0d %0d %0d", result[383:352], result[351:320], result[319:288], result[287:256]);
-        $display("%0d %0d %0d %0d", result[255:224], result[223:192], result[191:160], result[159:128]);
-        $display("%0d %0d %0d %0d", result[127:96], result[95:64], result[63:32], result[31:0]);
-         $display("========================");
+
+        for(i=0; i < 4; i = i + 1) begin
+            $display("%0d %0d %0d %0d", result[(15 - i*4)*32 +: 32], result[(14 - i*4)*32 +: 32], result[(13 - i*4)*32 +: 32], result[(12 - i*4)*32 +: 32]);
+        end
+        $display("========================");
 
         #10
 
