@@ -1,4 +1,4 @@
-# Systosim: Scalable Systolic Array Simulator
+# Systosim : Systolic Array Simulator
 
 ![Verilog](https://img.shields.io/badge/Verilog-HDL-green?style=for-the-badge)
 ![Icarus Verilog](https://img.shields.io/badge/Icarus_Verilog-Sim-blue?style=for-the-badge)
