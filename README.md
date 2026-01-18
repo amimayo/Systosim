@@ -139,7 +139,7 @@ Observe the `a`, `b`, and `result` bus for NxN Matrix Multiplication (N = 8) :
 
 ## ✅ Validation Results
 
-The testbenches verify the hardware using arithmetic and reverse progression matrices. For the  setup, the array successfully computes:
+For the  setup, the NxN Systolic Array successfully computes:
 
 * **Top-Left Corner (0,0):** 372
 * **Bottom-Right Corner (7,7):** 372
