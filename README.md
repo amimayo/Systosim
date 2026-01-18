@@ -149,9 +149,9 @@ For the  setup, the NxN Systolic Array successfully computes:
 
 ## 🛠️ To-Do List
 
-* [✅] 4x4 Structural MatMul
-* [✅] NxN Parameterized MatMul
-* [🟨] 2D Convolution
+* [✅] 4x4 Matrix Multiplication
+* [✅] NxN Matrix Multiplication
+* [🟨] Systolic 2D Convolution
 
 ---
 
