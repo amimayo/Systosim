@@ -33,8 +33,8 @@ module matmulNxN_tb;
 
     initial begin
 
-        $readmemh("matrix_a.txt", mem_a);
-        $readmemh("matrix_b.txt", mem_b);
+        $readmemh("./sim/matmul_NxN_sim/matrix_a.txt", mem_a);
+        $readmemh("./sim/matmul_NxN_sim/matrix_b.txt", mem_b);
         
         reset = 1;
 
