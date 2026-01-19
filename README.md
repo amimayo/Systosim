@@ -24,7 +24,7 @@ The PE is the fundamental unit of the array. In this project, each PE is a **Mul
 
 ---
 
-## 📁 File Structure :
+## 📁 File Structure 
 
 ```
 
