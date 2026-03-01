@@ -202,6 +202,7 @@ The testbenches verify the hardware. For the 2D Convolution setup, the array suc
 * [✅] 4x4 Structural MatMul
 * [✅] NxN Parameterized MatMul
 * [✅] 2D Convolution
+* [🟨] Vivado Simulation & Synthesis
 
 ---
 
