@@ -1,4 +1,4 @@
-# Systosim: Scalable Systolic Array Simulator
+# Systosim : Systolic Array Simulator
 
 ![Verilog](https://img.shields.io/badge/Verilog-HDL-green?style=for-the-badge)
 ![Icarus Verilog](https://img.shields.io/badge/Icarus_Verilog-Sim-blue?style=for-the-badge)
@@ -22,43 +22,50 @@ The PE is the fundamental unit of the array. In this project, each PE is a **Mul
 
 ![Alt Text](assets/systolic_array.png)
 
+
 ---
 
 ## 📁 File Structure :
 
 ```
-
 ├── assets/                                    
 │   ├── matmul_4x4.png                         # 4x4 simulation waveform screenshot
 │   ├── matmul_NxN.png                         # NxN simulation waveform screenshot
+│   ├── convolution.png                        # 2D Convolution waveform screenshot
 │   └── systolic_array.png                     # Architectural block diagram
 ├── rtl/                                       
 │   ├── matmul_4x4/                            # Structural 4x4 implementation
 │   │   ├── pe.v                               # Processing Element (MAC unit)
 │   │   └── systolic_array.v                   # Manually wired 4x4 grid
-│   └── matmul_NxN/                            # Parameterized implementation
-│       ├── pe.v                               # Processing Element (MAC unit)
-│       └── systolic_array.v                   # N-sized grid logic (generate loops)
+│   ├── matmul_NxN/                            # Parameterized implementation
+│   │   ├── pe.v                               # Processing Element (MAC unit)
+│   │   └── systolic_array.v                   # N-sized grid logic (generate loops)
+│   └── convolution/                           # Im2Col Convolution mapping
+│       ├── pe.v                               
+│       └── systolic_array.v                   
 ├── sim/                                      
 │   ├── matmul_4x4_sim/                       
-│   │   ├── matmul_4x4_wave.vcd                # 4x4 Waveform data for GTKWave
-│   │   └── systolic_array.vvp                 # Compiled Icarus Verilog executable
-│   └── matmul_NxN_sim/                       
-│       ├── matmul_NxN_wave.vcd                # NxN Waveform data
-│       ├── matrix_a.txt                       # Input data for Matrix A
-│       ├── matrix_b.txt                       # Input data for Matrix B
-│       └── systolic_array.vvp                 # Compiled NxN executable
+│   │   ├── matmul_4x4_wave.vcd                # 4x4 Waveform data
+│   │   └── systolic_array.vvp                 # Compiled 4x4 Icarus Verilog executable
+│   ├── matmul_NxN_sim/                       
+│   │   ├── matmul_NxN_wave.vcd                # NxN Waveform data
+│   │   ├── matrix_a.txt                       # Input data for Matrix A
+│   │   ├── matrix_b.txt                       # Input data for Matrix B
+│   │   └── systolic_array.vvp                 # Compiled NxN Icarus Verilog executable
+│   └── convolution/                           
+│       ├── convolution_wave.vcd               # Convolution Waveform data
+│       └── systolic_array.vvp                 # Compiled Convolution Icarus Verilog executable
 ├── tb/                            
 │   ├── systolic_array_matmul4x4_tb.v          # 4x4 Matrix Multiplication Verilog Testbench
-│   └── systolic_array_matrmulNxN_tb.v         # NxN Matrix Multiplication Verilog Testbench
+│   ├── systolic_array_matrmulNxN_tb.v         # NxN Matrix Multiplication Verilog Testbench
+│   └── systolic_array_convolution_tb.v        # 2D Convolution Verilog Testbench
 ├── LICENSE                                    # MIT License
 └── README.md                                  # Project documentation
-
 ```
 
 ---
 
-## 🏗️ Two Architectural Approaches
+## 🏗️ Implementations :
 
 ### 1. 4x4 Structural Grid (`rtl/matmul_4x4`)
 
@@ -74,6 +81,13 @@ This version leverages Verilog `generate` blocks and `parameters` to create a fl
 * **The Logic:** By simply adjusting the `parameter N`, the compiler automatically instantiates the correct number of PEs and routing wires.
 * **Why use it?** It demonstrates scalable, industry-standard RTL design. It uses an 1D output bus to store results, mapped via the formula:
 `result[32*(N*N - 1 - (i*N + j)) +: 32]`
+
+### 3. 2D Convolution via Im2Col (`rtl/convolution`)
+
+This version demonstrates how to map a sliding-window 2D Convolution onto a fixed Matrix Multiplication hardware array without altering the underlying RTL.
+
+* **The Logic:** By using the **Image-to-Column (Im2Col)** technique, image patches are flattened into rows, and the convolution kernel is flattened into a column. The hardware calculates the dot product natively, outputting the correct Feature Map.
+* **Why use it?** It proves that complex AI operations like convolution can be executed efficiently on a systolic array, mimicking how modern AI compilers map software algorithms to hardware accelerators.
 
 ---
 
@@ -102,6 +116,17 @@ iverilog -o sim/matmul_NxN_sim/systolic_array.vvp rtl/matmul_NxN/systolic_array.
 
 # Run simulation
 vvp sim/matmul_NxN_sim/systolic_array.vvp
+
+```
+
+### Running the 2D Convolution Simulation
+
+```bash
+# Compile from root
+iverilog -o sim/convolution/systolic_array.vvp rtl/convolution/systolic_array.v tb/systolic_array_convolution_tb.v
+
+# Run simulation
+vvp sim/convolution/systolic_array.vvp
 
 ```
 
@@ -135,15 +160,40 @@ Observe the `a`, `b`, and `result` bus for NxN Matrix Multiplication (N = 8) :
 
 ![Alt Text](assets/matmul_NxN.png)
 
+### Convolution Waveform
+
+Observe the `a`, `b`, and `result` bus for 2D Convolution :
+
+![Alt Text](assets/convolution.png)
+
 ---
 
 ## ✅ Validation Results
 
-The testbenches verify the hardware using arithmetic and reverse progression matrices. For the  setup, the array successfully computes:
+### 4x4 Matrix Multiplication 
+
+The testbenches verify the hardware. For the 4x4 setup, the array successfully computes:
+
+* **Top-Left Corner (0,0):** 30
+* **Bottom-Right Corner (3,3):** 591
+* **Maximum Result Value:** 591
+
+### NxN Matrix Multiplication 
+
+The testbenches verify the hardware. For the NxN setup, the array successfully computes:
 
 * **Top-Left Corner (0,0):** 372
 * **Bottom-Right Corner (7,7):** 372
 * **Maximum Result Value:** 1016
+
+### 2D Convolution
+
+The testbenches verify the hardware. For the 2D Convolution setup, the array successfully computes:
+
+* **Top-Left Corner (0,0):** 7
+* **Top-Right Corner (0,1):** 11
+* **Bottom-Left Corner (1, 0):** 23
+* **Bottom-Right Corner (1,1):** 12
 
 ---
 
@@ -151,7 +201,7 @@ The testbenches verify the hardware using arithmetic and reverse progression mat
 
 * [✅] 4x4 Structural MatMul
 * [✅] NxN Parameterized MatMul
-* [🟨] 2D Convolution
+* [✅] 2D Convolution
 
 ---
 
